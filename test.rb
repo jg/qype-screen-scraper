@@ -1,31 +1,20 @@
 require 'test/unit'
 require './review_pack.rb'
 
-class ReviewTest < Test::Unit::TestCase
-	def test
-		assert_equal(13, 13)
-	end
-end
-
 class ReviewPackTest < Test::Unit::TestCase
-	def test_nonexistent_page_as_input
-		id = 12345
+	def test_review_number_match
+	  # Tests whether no. of found reviews matches the no. displayed on page
+	  # It appears the site has inconsistencies which make this test not very effective
+    # http://www.qype.com/place/754709 
+    # http://www.qype.com/place/277760
+		id = 100+rand(1000000)
 		r = ReviewPack.new
 		r.from_id(id)
-		r.save
 
-		size = r.size
+    url = 'http://www.qype.com/place/' + id.to_s
+    doc = Nokogiri::HTML(open(url))
+    assert_equal(doc.css('#Content strong.count').text().to_i, r.reviews.size)
+    # assert_equal(, size)
 
-    ds = Sequel.sqlite(DB_FILE)[:reviews]
-    review = Review.new( :user => 'jg',
-												 :date => Date.today,
-												 :body => 'body',
-												 :rating => 2,
-												 :url => HOST + "/places/" + id,
-												 :qtype_id => id)
-		ds.insert(review.to_hash)
-
-
-		# r.get_page("http://nonexistent.com.pl")
 	end
 end

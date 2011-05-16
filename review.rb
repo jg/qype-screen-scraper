@@ -1,8 +1,7 @@
 
 class Review
-  attr_reader :body, :rating, :user, :date, :url, :qtype_id
+  attr_reader :body, :rating, :user, :date, :qtype_id
   
-  # def initialize
   def initialize(args)
     args.each do |k,v|
       instance_variable_set("@#{k}", v) unless v.nil?
@@ -22,7 +21,7 @@ class Review
   end
 
   def in_db?
-    Sequel.sqlite(DB_FILE)[:reviews].where(to_hash).reverse.first != nil
+    Sequel.sqlite(DB_FILE)[:reviews].where(:date => @date, :user => @user, :qtype_id => @qtype_id, :rating => @rating, :body => @body).first != nil
   end
 
 end

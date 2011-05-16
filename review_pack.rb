@@ -97,8 +97,8 @@ class ReviewPack
     reviews
   end
 
-  def save
-		## Saves new reviews to DB
+  def save 
+    ## Saves new reviews to DB
     return if @reviews.count == 0
 
     ds = Sequel.sqlite(DB_FILE)[:reviews]
@@ -111,9 +111,8 @@ class ReviewPack
          no_entries = no_entries + 1
       end
     end
-
+    
     puts "Added #{no_entries} new records from #{@url}"
   end
-
 end
 

@@ -19,4 +19,9 @@ Examples
 
 		ruby main.rb http://www.qype.com/place/13080-Bar-Gagarin-Berlin
 		ruby main.rb 13080
+	
+
+Running tests (work in progress)
+-------------
+    ruby test.rb
 
