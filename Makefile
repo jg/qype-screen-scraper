@@ -1,2 +1,5 @@
+test:
+	ruby test.rb
 db:
-	sequel -m migrations/ sqlite://reviews.db
+	rm reviews.db; sequel -m migrations/ sqlite://reviews.db
+

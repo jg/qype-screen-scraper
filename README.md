@@ -1,6 +1,7 @@
 PREPARING ENVIRONMENT 
 ------------
 
+		rvm use 1.9.2
 		gem install nokogiri
 
 RUNNING MIGRATIONS 
@@ -8,6 +9,7 @@ RUNNING MIGRATIONS
 
 		make db
 	
+RUNNING TESTS
+---------
 
-TODO
-------------
+		make test
