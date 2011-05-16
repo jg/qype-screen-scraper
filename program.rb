@@ -14,10 +14,25 @@ require 'ruby-debug'
 
 
 class Review
-  attr_accessor :body, :rating, :user, :date, :url, :qtype_id
+  attr_reader :body, :rating, :user, :date, :url, :qtype_id
   
+  # def initialize(
+  def initialize(args)
+    args.each do |k,v|
+      instance_variable_set("@#{k}", v) unless v.nil?
+    end unless args.nil?
+  end
+
   def to_s
-    "#{user}@#{date}"
+    "[#{user}@#{date}] writes \"#{body.delete('\n')}\"\n--"
+  end
+
+  def to_hash
+    h = Hash.new
+    instance_variables.each do |var|
+      h[var.to_s.delete("@")] = instance_variable_get(var)
+    end
+    h
   end
 end
 
@@ -58,20 +73,21 @@ class ReviewPack
   end
 
   def from_url(url)
+    ## Builds ReviewPack from given url
     @url = url
     @id = url.match('/place/(\d+)')[1]
 
-    ## Builds ReviewPack from given url
     pages_urls(url).each do |page_url| 
       @reviews.concat(get_reviews(get_page(page_url)))
     end
+    # puts "Found #{@reviews.count} reviews on #{url} :"
 
-    # @newest_comment = @reviews.first 
   end
 
   def from_id(id)
     ## Builds ReviewPack from given qtype ID
-    from_url(HOST + "/places/" + id.to_s)
+    host = HOST + "/place/" + id.to_s
+    from_url(host)
   end
 
   def get_reviews(html)
@@ -80,61 +96,87 @@ class ReviewPack
 
     doc = Nokogiri::HTML(html)
     doc.css('.ReviewBoxV2').each do |node|
-      r = Review.new
-      r.body   = node.at_css('.ReviewTextV2').text().strip()
-      r.rating = node.at_css('.rating').text().strip()
-      r.user   = node.at_css('.ContentUserPhotoBox > p > a').text()
+      h = Hash.new
+
+      h['body']   = node.at_css('.ReviewTextV2').text().strip()
+      h['rating'] = node.at_css('.rating').text().strip()
+      h['user']   = node.at_css('.ContentUserPhotoBox > p > a').text()
 
       # Extract date
       day, month, year  = node.at_css('.PlaceReviewMeta').text().split(" ")[-3,3]
       day = day.to_i
       month = MONTHNAMES.index(month).to_i + 1
       year = year.to_i
-      r.date = Date.civil(year, month, day)
+      h['date'] = Date.civil(year, month, day)
 
-      r.qtype_id = @id
-      r.url = @url
+      h['qtype_id'] = @id
+      h['url'] = @url
 
-      reviews << r
+
+
+      reviews << Review.new(h)
     end
     reviews
   end
 
-  def get_from_db(id)
-    ## G
+  def newest_review
+    @reviews.max{|r| r.date}
   end
 
-  def this.run(input)
-    if input.match(/^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$/ix)
-      from_url(input)
-    else
-      from_id(input)
-    end
-    
-    if newer?(@reviews)
-    end
-  end
   def save
+    return if @reviews.count == 0
+
     db = Sequel.sqlite(DB_FILE)
     ds = db[:reviews]
-    @reviews.each do |r|
-      ds.insert(
-        :url  => r.url,
-        :body => r.body,
-        :qtype_id => r.qtype_id,
-        :rating => r.rating,
-        :user => r.user,
-        :date => r.date
-      )
-    end
+    db_newest_review = Review.new(ds.where(:qtype_id => @id).order(:date).reverse.first)
+    # puts db_newest_review.date
+    # debugger
+
+    no_entries = 0
+    if db_newest_review.date != nil
+      # puts "db_newest_review != nil"
+      if newest_review.date > db_newest_review.date 
+        # Update DB with new records  
+        @reviews.each do |r|
+          if r.date > db_newest_review.date
+            puts r
+            ds.insert(r.to_hash)
+            no_entries = no_entries + 1
+          end
+        end
+      end
+    else
+      # puts "db_newest_review == nil"
+      # No entry in db, save all records
+      @reviews.each do |r|
+        puts r
+        ds.insert(r.to_hash) 
+        no_entries = no_entries + 1
+      end unless @reviews.nil?
+    end 
+    puts "Added #{no_entries} new records from #{@url}"
   end
 end
 
 
-sample = 'http://www.qype.com/place/13080-Bar-Gagarin-Berlin'
-r = ReviewPack.new
+if ARGV.count != 1 
+  puts "Usage: "
+  puts "\t./program [URL|QTYPE_ID]"
+  exit
+end
+rp = ReviewPack.new
+input = ARGV[0]
+if input.match(/^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(([0-9]{1,5})?\/.*)?$/ix)
+  rp.from_url(input)
+else
+  rp.from_id(input)
+end
+rp.save
 
-reviews = r.from_url(sample)
+# sample = 'http://www.qype.com/place/13080-Bar-Gagarin-Berlin'
+# r = ReviewPack.new
+# 
+# reviews = r.from_url(sample)
 # debugger
 # puts "ENDE"
 

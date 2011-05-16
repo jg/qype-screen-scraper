@@ -6,8 +6,7 @@ PREPARING ENVIRONMENT
 RUNNING MIGRATIONS 
 ---------
 
-	make db
-	# sequel -m migrations/ sqlite://reviews.db	
+		make db
 	
 
 TODO
