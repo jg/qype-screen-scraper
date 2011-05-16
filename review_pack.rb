@@ -90,7 +90,6 @@ class ReviewPack
       h['date'] = Date.civil(year, month, day)
 
       h['qtype_id'] = @id
-      h['url'] = @url
 
       reviews << Review.new(h)
     end
