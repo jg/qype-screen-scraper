@@ -26,7 +26,7 @@ end
 
 def print_usage
   puts "Usage: "
-  puts "\t./program [URL|QTYPE_ID]"
+  puts "\t ruby main.rb [URL|QTYPE_ID]"
   exit
 end
 

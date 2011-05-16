@@ -22,8 +22,7 @@ class Review
   end
 
   def in_db?
-    db = Sequel.sqlite(DB_FILE)
-    db[:reviews].where(to_hash).reverse.first != nil
+    Sequel.sqlite(DB_FILE)[:reviews].where(to_hash).reverse.first != nil
   end
 
 end

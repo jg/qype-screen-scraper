@@ -13,3 +13,8 @@ Running tests
 ---------
 
 		make test
+
+Usage
+---------
+
+		ruby main.rb [URL|QTYPE_ID]

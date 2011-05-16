@@ -105,7 +105,7 @@ class ReviewPack
 
     no_entries = 0
     @reviews.each do |r|
-      if not r.in_db?
+      unless r.in_db?
          puts r
          ds.insert(r.to_hash)
          no_entries = no_entries + 1
@@ -114,5 +114,6 @@ class ReviewPack
 
     puts "Added #{no_entries} new records from #{@url}"
   end
+
 end
 
