@@ -1,0 +1,14 @@
+PREPARING ENVIRONMENT 
+------------
+
+		gem install nokogiri
+
+RUNNING MIGRATIONS 
+---------
+
+	make db
+	# sequel -m migrations/ sqlite://reviews.db	
+	
+
+TODO
+------------

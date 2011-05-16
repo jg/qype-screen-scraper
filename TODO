@@ -1,0 +1,12 @@
+
+      # unicode regexp issues, tocheck
+      # node.at_css('.PlaceReviewMeta').text().match(/(\d+) (\w+) (\d+)/) do |m|
+      #   # puts m.inspect
+      #   day = m[1].to_i
+      #   month = MONTHNAMES.index(m[2]).to_i + 1
+      #   puts m[2] 
+      #   year = m[3].to_i
+
+      #   r.date = Date.civil(year, month, day)
+      # end
+
