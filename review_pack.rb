@@ -61,8 +61,7 @@ class ReviewPack
 
   def from_id(id)
     ## Builds ReviewPack from given qtype ID
-    host = HOST + "/place/" + id.to_s
-    from_url(host)
+    from_url(HOST + "/place/" + id.to_s)
   end
 
   def get_reviews(html)
@@ -73,14 +72,14 @@ class ReviewPack
     doc.css('.ReviewBoxV2').each do |node|
       h = Hash.new
 
-      h['body']   = node.at_css('.ReviewTextV2').text().strip()
+      h['body'] = node.at_css('.ReviewTextV2').text().strip()
       # It seems rating isn't always shown
       unless node.at_css('.rating').nil?
 				h['rating'] = node.at_css('.rating').text().strip()
 			else
 				h['rating'] = 0
 			end
-      h['user']   = node.at_css('.ContentUserPhotoBox > p > a').text()
+      h['user'] = node.at_css('.ContentUserPhotoBox > p > a').text()
 
       # Extract date
       day, month, year  = node.at_css('.PlaceReviewMeta').text().split(" ")[-3,3]
